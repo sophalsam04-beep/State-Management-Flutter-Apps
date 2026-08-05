@@ -1,84 +1,85 @@
+import 'package:demo_2/Bloc/counter_bloc.dart';
+import 'package:demo_2/Bloc/counter_event.dart';
+import 'package:demo_2/Bloc/counter_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc/bloc.dart';
 
-
-import 'package:flutter/material.dart';
-
-void main() => runApp(MyApp());
+void main()=> runApp(
+    BlocProvider(
+      create: (_)=> CounterBloc(),
+      child: MyApp(),
+    )
+);
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: CounterWidget(),
-      );
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: BlocScreen(),
+        );
   }
 }
 
 
-
-class CounterWidget extends StatefulWidget {
-  const CounterWidget({super.key});
+class BlocScreen extends StatefulWidget {
+  const BlocScreen({super.key});
 
   @override
-  State<CounterWidget> createState() => _CounterWidgetState();
+  State<BlocScreen> createState() => _BlocScreenState();
 }
 
-class _CounterWidgetState extends State<CounterWidget> {
-      // This is a Local state
-    int _counter = 0;
-
-    void incrementCounter(){
-
-      // ប្រើsetState ដើម្បីប្រាប់UI អោយទៅUpdate កើន
-        setState(() {
-            _counter++;
-        });
-    }
-
-    void decrementCounter(){
-        // ប្រើ setState ដើម្បីប្រាប់ UI អោយទៅ Update ថយ
-        setState(() {
-            _counter--;
-        });
-    }
-
-
-
-
+class _BlocScreenState extends State<BlocScreen> {
   @override
   Widget build(BuildContext context) {
         return Scaffold(
-            appBar: AppBar(
-              title: Text("Local State", style: TextStyle(fontSize: 30,color: Colors.blue,fontWeight: FontWeight.bold),),
+          appBar: AppBar(
+            title: Text("Global State with Bloc", style: TextStyle(fontSize: 25,color: Colors.green,fontWeight: FontWeight.bold),),
+          ),
+          
+          body: BlocBuilder<CounterBloc, CounterState>(
 
+            // Read State -> Rebuild state
+              builder: (context, state) {
+                    return Center(
+                      child: Text("${state.counter}", style: TextStyle(fontSize: 40,color: Colors.red),),
+                    );
+              },
 
-            ),
-          body: Center(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 100,
-                ),
-                Text("Counter Increment : $_counter",style: TextStyle(fontSize: 28,color: Colors.red)),
+          ),
 
-                // Increment
-                ElevatedButton(
-                    onPressed: incrementCounter,
-                    child: Text("+")),
-
-                // Decrement
-                ElevatedButton(
-                    onPressed: decrementCounter,
-                    child: Text("-")),
+          // Navigation bar
+          // Update State
 
 
 
-              ],
-            ),
-          )
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: (){
+              // bloc updated
+              context.read<CounterBloc>().add(
+                  IncrementCounter()
+              );
 
+            },
+            child: Icon(Icons.plus_one),
 
+          ),
+          FloatingActionButton(
+            onPressed: (){
+              // bloc updated
+              context.read<CounterBloc>().add(DecrementCounter());
+
+            },
+            child: Icon(Icons.format_indent_decrease),
+
+          ),
+        ],
+      ),
         );
+
   }
 }
